@@ -1,5 +1,6 @@
 'use client';
 import React from 'react';
+import Link from 'next/link';
 import { useCart } from './CartContext';
 
 export default function Navbar() {
@@ -8,10 +9,10 @@ export default function Navbar() {
 
   return (
     <nav className="navbar glass">
-      <div className="logo">WDR.</div>
+      <Link href="/" className="logo" style={{ color: 'inherit', textDecoration: 'none' }}>WDR.</Link>
       <div className="nav-links">
-        <a href="#">Trending</a>
-        <a href="#">Categories</a>
+        <Link href="/">Trending</Link>
+        <Link href="/categories">Categories</Link>
         <button className="cart-nav-btn" onClick={() => setIsCartOpen(true)}>Cart ({itemCount})</button>
       </div>
     </nav>
