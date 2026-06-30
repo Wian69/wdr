@@ -2,6 +2,7 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { useCart } from './CartContext';
+import { useCurrency } from './CurrencyContext';
 
 type Product = { id: string; name: string; price: number; image: string; region: string };
 
@@ -16,6 +17,7 @@ const allProducts: Product[] = [
 
 export default function Storefront({ initialCountry }: { initialCountry: string }) {
   const { addToCart } = useCart();
+  const { formatPrice } = useCurrency();
   const [country, setCountry] = useState(initialCountry);
 
   // Sort products: Prioritize matching region, then 'Global', then others
@@ -74,7 +76,7 @@ export default function Storefront({ initialCountry }: { initialCountry: string 
                     <h3>{p.name}</h3>
                     {p.region === country && <span style={{ background: 'var(--accent-color)', color: 'white', padding: '4px 8px', borderRadius: '12px', fontSize: '0.7rem', fontWeight: 600 }}>Hot Locally</span>}
                   </div>
-                  <p className="price">${p.price.toFixed(2)}</p>
+                  <p className="price">{formatPrice(p.price)}</p>
                 </div>
               </Link>
               <div style={{ padding: '0 1.5rem 1.5rem' }}>

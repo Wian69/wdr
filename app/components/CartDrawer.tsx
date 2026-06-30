@@ -2,10 +2,12 @@
 import React from 'react';
 import { useRouter } from 'next/navigation';
 import { useCart } from './CartContext';
+import { useCurrency } from './CurrencyContext';
 
 export default function CartDrawer() {
   const router = useRouter();
   const { isCartOpen, setIsCartOpen, items, removeFromCart, total } = useCart();
+  const { formatPrice } = useCurrency();
 
   if (!isCartOpen) return null;
 
@@ -25,7 +27,7 @@ export default function CartDrawer() {
               <div key={item.id} className="cart-item">
                 <div className="cart-item-info">
                   <h4>{item.name}</h4>
-                  <p className="cart-item-price">${item.price.toFixed(2)} <span className="cart-qty">x {item.quantity}</span></p>
+                  <p className="cart-item-price">{formatPrice(item.price)} <span className="cart-qty">x {item.quantity}</span></p>
                 </div>
                 <button className="remove-btn" onClick={() => removeFromCart(item.id)}>Remove</button>
               </div>
@@ -36,7 +38,7 @@ export default function CartDrawer() {
           <div className="cart-footer">
             <div className="cart-total">
               <span>Total:</span>
-              <span>${total.toFixed(2)}</span>
+              <span>{formatPrice(total)}</span>
             </div>
             <button 
               className="btn-primary checkout-btn" 

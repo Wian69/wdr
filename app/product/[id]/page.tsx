@@ -1,6 +1,7 @@
 import React from 'react';
 import Link from 'next/link';
 import ProductActions from './ProductActions';
+import PriceDisplay from '../../components/PriceDisplay';
 
 // Mock database to simulate an API
 const allProducts = [
@@ -33,7 +34,7 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
         
         <div style={{ display: 'flex', flexDirection: 'column', justifySelf: 'start', width: '100%' }}>
           <h1 style={{ fontSize: '3.5rem', marginBottom: '1rem', lineHeight: '1.1' }}>{product.name}</h1>
-          <p style={{ fontSize: '2.5rem', color: 'var(--accent-color)', fontWeight: '800', marginBottom: '2rem' }}>${product.price.toFixed(2)}</p>
+          <PriceDisplay priceInUSD={product.price} style={{ fontSize: '2.5rem', color: 'var(--accent-color)', fontWeight: '800', marginBottom: '2rem', display: 'block' }} />
           <p style={{ fontSize: '1.2rem', color: 'var(--text-secondary)', lineHeight: '1.6', marginBottom: '3rem' }}>
             {product.description}
           </p>

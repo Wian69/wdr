@@ -1,10 +1,13 @@
 'use client';
 import React, { useState } from 'react';
 import { useCart } from '../components/CartContext';
+import { useCurrency } from '../components/CurrencyContext';
 import Link from 'next/link';
+import { PayPalScriptProvider, PayPalButtons } from "@paypal/react-paypal-js";
 
 export default function CheckoutClient() {
   const { items, total } = useCart();
+  const { formatPrice, currency, rate } = useCurrency();
   const [isProcessing, setIsProcessing] = useState(false);
 
   if (items.length === 0) {
@@ -16,14 +19,8 @@ export default function CheckoutClient() {
     );
   }
 
-  const handleMockPayment = () => {
-    setIsProcessing(true);
-    setTimeout(() => {
-      alert("Success! The payment was processed via PayPal Sandbox, and the order has been routed to the dropshipping supplier API.");
-      setIsProcessing(false);
-      window.location.href = '/';
-    }, 2000);
-  };
+  // Calculate the total in the local currency properly for the PayPal API
+  const localTotal = (total * rate).toFixed(2);
 
   return (
     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(400px, 1fr))', gap: '4rem' }}>
@@ -54,14 +51,14 @@ export default function CheckoutClient() {
                 <h4 style={{ fontSize: '1.1rem', marginBottom: '0.25rem' }}>{item.name}</h4>
                 <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem' }}>Qty: {item.quantity}</p>
               </div>
-              <p style={{ fontWeight: 600 }}>${(item.price * item.quantity).toFixed(2)}</p>
+              <p style={{ fontWeight: 600 }}>{formatPrice(item.price * item.quantity)}</p>
             </div>
           ))}
         </div>
         
         <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '1.2rem', marginBottom: '1rem', color: 'var(--text-secondary)' }}>
           <span>Subtotal</span>
-          <span>${total.toFixed(2)}</span>
+          <span>{formatPrice(total)}</span>
         </div>
         <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '1.2rem', marginBottom: '2rem', color: 'var(--text-secondary)' }}>
           <span>Global Shipping</span>
@@ -69,26 +66,34 @@ export default function CheckoutClient() {
         </div>
         <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '1.8rem', fontWeight: 800, marginBottom: '2.5rem', paddingTop: '1.5rem', borderTop: '1px solid var(--border-color)' }}>
           <span>Total</span>
-          <span style={{ color: 'var(--accent-color)' }}>${total.toFixed(2)}</span>
+          <span style={{ color: 'var(--accent-color)' }}>{formatPrice(total)}</span>
         </div>
 
-        {/* PayPal Mock Button */}
-        <button 
-          onClick={handleMockPayment}
-          disabled={isProcessing}
-          style={{ width: '100%', background: '#ffc439', color: '#000', padding: '1.2rem', borderRadius: '8px', textAlign: 'center', cursor: isProcessing ? 'not-allowed' : 'pointer', border: 'none', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '0.5rem', transition: 'opacity 0.3s ease', opacity: isProcessing ? 0.7 : 1 }}
-        >
-          {isProcessing ? (
-            <span style={{ fontWeight: 600, fontSize: '1.2rem' }}>Processing Payment...</span>
-          ) : (
-            <>
-              <span style={{ fontStyle: 'italic', color: '#003087', fontSize: '1.5rem', fontWeight: 800, letterSpacing: '-0.5px' }}>PayPal</span> 
-              <span style={{ fontWeight: 600, fontSize: '1.2rem', color: '#000' }}>Checkout</span>
-            </>
-          )}
-        </button>
+        {/* Real PayPal Integration */}
+        <PayPalScriptProvider options={{ "clientId": process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID || "test", currency: currency }}>
+          <PayPalButtons 
+            style={{ layout: "vertical", color: "gold", shape: "rect", label: "paypal" }}
+            createOrder={(data, actions) => {
+              return actions.order.create({
+                intent: "CAPTURE",
+                purchase_units: [{
+                  amount: {
+                    currency_code: currency,
+                    value: localTotal
+                  }
+                }]
+              });
+            }}
+            onApprove={(data, actions) => {
+              return actions.order!.capture().then((details) => {
+                alert(`Transaction successfully completed by ${details.payer?.name?.given_name}!`);
+                window.location.href = '/';
+              });
+            }}
+          />
+        </PayPalScriptProvider>
         <p style={{ textAlign: 'center', color: 'var(--text-secondary)', marginTop: '1.5rem', fontSize: '0.9rem' }}>
-          This is a simulated sandbox checkout. No real money will be charged during testing.
+          Secure, encrypted checkout powered directly by PayPal. Withdrawals natively support South African banks via FNB.
         </p>
       </div>
     </div>
