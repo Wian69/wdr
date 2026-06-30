@@ -1,8 +1,10 @@
 'use client';
 import React from 'react';
+import { useRouter } from 'next/navigation';
 import { useCart } from './CartContext';
 
 export default function CartDrawer() {
+  const router = useRouter();
   const { isCartOpen, setIsCartOpen, items, removeFromCart, total } = useCart();
 
   if (!isCartOpen) return null;
@@ -36,7 +38,15 @@ export default function CartDrawer() {
               <span>Total:</span>
               <span>${total.toFixed(2)}</span>
             </div>
-            <button className="btn-primary checkout-btn">Checkout with Stripe</button>
+            <button 
+              className="btn-primary checkout-btn" 
+              onClick={() => {
+                setIsCartOpen(false);
+                router.push('/checkout');
+              }}
+            >
+              Secure Checkout
+            </button>
           </div>
         )}
       </div>
