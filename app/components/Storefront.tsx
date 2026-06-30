@@ -1,5 +1,6 @@
 'use client';
 import React, { useState } from 'react';
+import Link from 'next/link';
 import { useCart } from './CartContext';
 
 type Product = { id: string; name: string; price: number; image: string; region: string };
@@ -66,14 +67,18 @@ export default function Storefront({ initialCountry }: { initialCountry: string 
         <div className="product-grid">
           {sortedProducts.map((p) => (
             <div key={p.id} className="product-card glass" style={{ borderColor: p.region === country ? 'var(--accent-color)' : 'var(--border-color)' }}>
-              <div className="product-image">{p.image}</div>
-              <div className="product-info">
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                  <h3>{p.name}</h3>
-                  {p.region === country && <span style={{ background: 'var(--accent-color)', color: 'white', padding: '4px 8px', borderRadius: '12px', fontSize: '0.7rem', fontWeight: 600 }}>Hot Locally</span>}
+              <Link href={`/product/${p.id}`} style={{ textDecoration: 'none', color: 'inherit', display: 'flex', flexDirection: 'column', flexGrow: 1 }}>
+                <div className="product-image">{p.image}</div>
+                <div className="product-info">
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                    <h3>{p.name}</h3>
+                    {p.region === country && <span style={{ background: 'var(--accent-color)', color: 'white', padding: '4px 8px', borderRadius: '12px', fontSize: '0.7rem', fontWeight: 600 }}>Hot Locally</span>}
+                  </div>
+                  <p className="price">${p.price.toFixed(2)}</p>
                 </div>
-                <p className="price">${p.price.toFixed(2)}</p>
-                <button className="btn-primary" style={{width: '100%', marginTop: 'auto'}} onClick={() => addToCart(p)}>Add to Cart</button>
+              </Link>
+              <div style={{ padding: '0 1.5rem 1.5rem' }}>
+                <button className="btn-primary" style={{width: '100%'}} onClick={() => addToCart(p)}>Add to Cart</button>
               </div>
             </div>
           ))}
